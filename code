@@ -1,0 +1,108 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <unordered_map>
+
+using namespace std;
+
+unordered_map<string, int> variables;
+
+int getValue(string s) {
+
+    if (isdigit(s[0]))
+        return stoi(s);
+
+    return variables[s];
+}
+
+int evaluate(string expr) {
+
+    stringstream ss(expr);
+
+    string left, op, right;
+
+    ss >> left;
+
+    if (!(ss >> op))
+        return getValue(left);
+
+    ss >> right;
+
+    int a = getValue(left);
+    int b = getValue(right);
+
+    if (op == "+")
+        return a + b;
+
+    if (op == "-")
+        return a - b;
+
+    if (op == "*")
+        return a * b;
+
+    if (op == "/")
+        return a / b;
+
+    return 0;
+}
+
+void execute(string line) {
+
+    stringstream ss(line);
+
+    string command;
+
+    ss >> command;
+
+    if (command == "let") {
+
+        string var, eq;
+
+        ss >> var >> eq;
+
+        string expr;
+
+        getline(ss, expr);
+
+        variables[var] = evaluate(expr);
+    }
+
+    else if (command == "print") {
+
+        string expr;
+
+        getline(ss, expr);
+
+        cout << evaluate(expr) << endl;
+    }
+}
+
+int main() {
+
+    string program = R"(
+
+        let x = 10
+        let y = 20
+        let z = x + y
+
+        print x
+        print y
+        print z
+        print z * 5
+
+    )";
+
+    stringstream programStream(program);
+
+    string line;
+
+    while (getline(programStream, line)) {
+
+        if (line.empty())
+            continue;
+
+        execute(line);
+    }
+
+    return 0;
+}
